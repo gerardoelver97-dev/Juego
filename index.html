@@ -1,4 +1,4 @@
-¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -98,6 +98,20 @@ button:hover{
 #bloqueado{
     display:none;
 }
+
+/* ⭐ MARCA DE AGUA */
+#watermark{
+    position: fixed;
+    bottom: 10px;
+    right: 15px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.25);
+    font-weight: bold;
+    letter-spacing: 1px;
+    pointer-events: none;
+    user-select: none;
+    z-index: 9999;
+}
 </style>
 </head>
 <body>
@@ -124,6 +138,9 @@ button:hover{
     <p>Pares encontrados: <span id="contador">0</span>/10</p>
     <div id="tablero"></div>
 </div>
+
+<!-- ⭐ MARCA DE AGUA -->
+<div id="watermark">GERARDO CRISTOBAL HERNANDEZ</div>
 
 <script>
 let intentos = 0;
@@ -170,13 +187,12 @@ let parejas = 0;
 function iniciarJuego() {
 
     cartas = [...imagenes, ...imagenes];
-
     cartas.sort(() => Math.random() - 0.5);
 
     const tablero = document.getElementById("tablero");
     tablero.innerHTML = "";
 
-    cartas.forEach((img, index) => {
+    cartas.forEach((img) => {
 
         const tarjeta = document.createElement("div");
         tarjeta.classList.add("tarjeta");
@@ -190,7 +206,6 @@ function iniciarJuego() {
         `;
 
         tarjeta.addEventListener("click", () => voltearTarjeta(tarjeta));
-
         tablero.appendChild(tarjeta);
     });
 }
@@ -215,9 +230,8 @@ function voltearTarjeta(tarjeta){
     segunda = tarjeta;
     bloqueo = true;
 
-    if(
-        primera.dataset.imagen === segunda.dataset.imagen
-    ){
+    if(primera.dataset.imagen === segunda.dataset.imagen){
+
         parejas++;
         document.getElementById("contador").textContent = parejas;
 
