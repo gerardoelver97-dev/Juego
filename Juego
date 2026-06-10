@@ -1,0 +1,249 @@
+¿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memorama</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#1e1e2f;
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+#login, #bloqueado, #juego{
+    text-align:center;
+}
+
+input{
+    padding:10px;
+    font-size:18px;
+    margin:10px;
+    border:none;
+    border-radius:5px;
+}
+
+button{
+    padding:10px 20px;
+    font-size:18px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    background:#4CAF50;
+    color:white;
+}
+
+button:hover{
+    background:#45a049;
+}
+
+#tablero{
+    display:grid;
+    grid-template-columns:repeat(5,120px);
+    gap:10px;
+    margin-top:20px;
+}
+
+.tarjeta{
+    width:120px;
+    height:120px;
+    position:relative;
+    transform-style:preserve-3d;
+    transition:transform 0.5s;
+    cursor:pointer;
+}
+
+.tarjeta.volteada{
+    transform:rotateY(180deg);
+}
+
+.cara{
+    position:absolute;
+    width:100%;
+    height:100%;
+    backface-visibility:hidden;
+    border-radius:10px;
+}
+
+.frontal{
+    background:#3498db;
+}
+
+.trasera{
+    transform:rotateY(180deg);
+}
+
+.trasera img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:10px;
+}
+
+#juego{
+    display:none;
+}
+
+#bloqueado{
+    display:none;
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+    <h1>Acceso al Juego</h1>
+    <p>Ingresa el código:</p>
+    <input type="password" id="codigo">
+    <br>
+    <button onclick="verificarCodigo()">Entrar</button>
+    <p id="mensaje"></p>
+</div>
+
+<!-- BLOQUEADO -->
+<div id="bloqueado">
+    <h1>❌ No puedes jugar</h1>
+    <p>Has agotado los 3 intentos permitidos.</p>
+</div>
+
+<!-- JUEGO -->
+<div id="juego">
+    <h1>🧠 Memorama</h1>
+    <p>Pares encontrados: <span id="contador">0</span>/10</p>
+    <div id="tablero"></div>
+</div>
+
+<script>
+let intentos = 0;
+const codigoCorrecto = "0000";
+
+function verificarCodigo() {
+    const codigo = document.getElementById("codigo").value;
+
+    if(codigo === codigoCorrecto){
+        document.getElementById("login").style.display = "none";
+        document.getElementById("juego").style.display = "block";
+        iniciarJuego();
+    }else{
+        intentos++;
+        document.getElementById("mensaje").innerText =
+            "Código incorrecto. Intento " + intentos + " de 3";
+
+        if(intentos >= 3){
+            document.getElementById("login").style.display = "none";
+            document.getElementById("bloqueado").style.display = "block";
+        }
+    }
+}
+
+const imagenes = [
+"https://picsum.photos/id/101/200",
+"https://picsum.photos/id/102/200",
+"https://picsum.photos/id/103/200",
+"https://picsum.photos/id/104/200",
+"https://picsum.photos/id/105/200",
+"https://picsum.photos/id/106/200",
+"https://picsum.photos/id/107/200",
+"https://picsum.photos/id/108/200",
+"https://picsum.photos/id/109/200",
+"https://picsum.photos/id/110/200"
+];
+
+let cartas = [];
+let primera = null;
+let segunda = null;
+let bloqueo = false;
+let parejas = 0;
+
+function iniciarJuego() {
+
+    cartas = [...imagenes, ...imagenes];
+
+    cartas.sort(() => Math.random() - 0.5);
+
+    const tablero = document.getElementById("tablero");
+    tablero.innerHTML = "";
+
+    cartas.forEach((img, index) => {
+
+        const tarjeta = document.createElement("div");
+        tarjeta.classList.add("tarjeta");
+        tarjeta.dataset.imagen = img;
+
+        tarjeta.innerHTML = `
+            <div class="cara frontal"></div>
+            <div class="cara trasera">
+                <img src="${img}">
+            </div>
+        `;
+
+        tarjeta.addEventListener("click", () => voltearTarjeta(tarjeta));
+
+        tablero.appendChild(tarjeta);
+    });
+}
+
+function voltearTarjeta(tarjeta){
+
+    if(
+        bloqueo ||
+        tarjeta === primera ||
+        tarjeta.classList.contains("volteada")
+    ){
+        return;
+    }
+
+    tarjeta.classList.add("volteada");
+
+    if(!primera){
+        primera = tarjeta;
+        return;
+    }
+
+    segunda = tarjeta;
+    bloqueo = true;
+
+    if(
+        primera.dataset.imagen === segunda.dataset.imagen
+    ){
+        parejas++;
+        document.getElementById("contador").textContent = parejas;
+
+        primera = null;
+        segunda = null;
+        bloqueo = false;
+
+        if(parejas === 10){
+            setTimeout(() => {
+                alert("🎉 ¡Ganaste el memorama!");
+            }, 500);
+        }
+
+    } else {
+
+        setTimeout(() => {
+            primera.classList.remove("volteada");
+            segunda.classList.remove("volteada");
+
+            primera = null;
+            segunda = null;
+            bloqueo = false;
+        }, 1000);
+    }
+}
+</script>
+
+</body>
+</html>
